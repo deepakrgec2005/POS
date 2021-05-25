@@ -28,11 +28,11 @@ import lombok.ToString;
 @ToString
 public class Purchase {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "purchase_sql")
-	@GenericGenerator(name="purchase_sql", strategy = "com.dk.rsale.entity.PurchaseIdGen",parameters = {
+	@GenericGenerator(name="purchase_sql", strategy = "com.dk.rsale.entity.ProductIDGen",parameters = {
 			
-			@Parameter(name=StringPrefixedSequenceGenerator.INCREMENT_PARAM, value="1" ),
-			@Parameter(name=StringPrefixedSequenceGenerator.VALUE_PREFIX_PARAMETER, value="PR_"),
-			@Parameter(name=StringPrefixedSequenceGenerator.NUMBER_FORMAT_DEFAULT, value="%05d")
+			@Parameter(name=ProductIDGen.INCREMENT_PARAM, value="1" ),
+			@Parameter(name=ProductIDGen.VALUE_PREFIX_PARAMETER, value="PR_"),
+			@Parameter(name=ProductIDGen.NUMBER_FORMAT_DEFAULT, value="%05d")
 	})
 	@Id
 	/* purchase Id*/
@@ -54,7 +54,9 @@ public class Purchase {
 	/* Base Value*/
 	private double bvalue;
 	private double mrp;
-	private int splid;
+	@ManyToOne(targetEntity = Supplier.class,cascade = CascadeType.ALL)
+	@JoinColumn(name="splid",referencedColumnName = "sid")
+	private Supplier splid;
 	private Date exdate;
 	/* supplier discount*/
 	private double spldis;

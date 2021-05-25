@@ -52,4 +52,8 @@ public Purchase getPurId(String string) {
 	return pudao.findById(string).orElse(null);
 	 
 }
+public List<Purchase> getPurAll() {
+	return pudao.findAll();
+	 
+}
 }
