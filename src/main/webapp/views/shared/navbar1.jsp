@@ -20,6 +20,9 @@
           <li id="contact" class="nav-item">
             <a class="nav-link" href="${contetxRoot}/contact">Contact</a>
           </li>
+            <li id="purchasedetail" class="nav-item">
+            <a class="nav-link" href="${contetxRoot}/trial">Purchase</a>
+          </li>
         </ul>
       </div>
     </div>

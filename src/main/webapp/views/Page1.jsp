@@ -56,7 +56,10 @@
 										'change',
 										function() {
 											var countryId = $(this).val();
+											 
 											console.log(countryId);
+											document.getElementById('subcatg').value=countryId;
+											 
 											$
 													.ajax({
 														type : 'GET',
@@ -98,7 +101,7 @@
          <c:when test="${userClickBarcodePrint==true}">
               
        </c:when>
-       
+        
        <c:otherwise>
           <%@ include file="./shared/navbar1.jsp"%>   
        </c:otherwise>
@@ -137,17 +140,27 @@
 			  
 				<%@include file="BarcodePrint.jsp"%>
 		</c:if>
+		 <c:if test="${userClicStock==true}">
+			  
+				<%@include file="stock.jsp"%>
+		</c:if>
+		
+		 <c:if test="${userClicStockOpening==true}">
+			  
+				<%@include file="OpeningBatch.jsp"%>
+		</c:if>
 		
 		<c:choose>
        <c:when test="${userClickPurchaselist ==true}">
                
        </c:when>
         <c:when test="${userClickPurchaselistupdate==true}">
-               
+              
        </c:when>
         <c:when test="${userClickBarcodePrint==true}">
                
        </c:when>
+        
        <c:otherwise>
           <%@include file="./shared/footer1.jsp"%>
        </c:otherwise>

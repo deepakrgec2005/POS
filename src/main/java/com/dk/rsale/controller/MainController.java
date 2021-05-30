@@ -34,19 +34,23 @@ import com.dk.rsale.Service.NewBarcodeGenSer;
 import com.dk.rsale.Service.ProductListServices;
 import com.dk.rsale.Service.PurchaseService;
 import com.dk.rsale.Service.PurchasedetailServ;
+import com.dk.rsale.Service.StockDetailService;
+import com.dk.rsale.Service.StockService;
 import com.dk.rsale.Service.SubGroupService;
 import com.dk.rsale.Service.SupplierService;
 import com.dk.rsale.dao.MainGroupDAO;
 import com.dk.rsale.dao.ProductDao;
 import com.dk.rsale.entity.InwardRegister;
 import com.dk.rsale.entity.MainGroup;
-import com.dk.rsale.entity.Product;
+ 
 import com.dk.rsale.entity.ProductList;
 import com.dk.rsale.entity.ProductObject;
 import com.dk.rsale.entity.Purchasedetail;
+import com.dk.rsale.entity.Stock;
+import com.dk.rsale.entity.StockDetail;
+import com.dk.rsale.entity.SubGroup;
 import com.dk.rsale.entity.Supplier;
 import com.google.gson.Gson;
-
 import net.sf.jasperreports.engine.DefaultJasperReportsContext;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -57,7 +61,6 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
- 
 
 @Controller
 public class MainController {
@@ -81,11 +84,14 @@ public class MainController {
 	@Autowired
 	PurchasedetailServ pdss;
 	@Autowired
- 	InwardRegisterSer iws;
-	 
+	InwardRegisterSer iws;
+	@Autowired
+	StockService stsr;
+	@Autowired
+	StockDetailService sdts;
 	@RequestMapping(value = { "/", "/home" })
 	public ModelAndView HomeCont() {
-		// ModelAndView mv = new ModelAndView("Home");
+
 		ModelAndView mv = new ModelAndView("Page1");
 		mv.addObject("title", "Home");
 
@@ -134,9 +140,12 @@ public class MainController {
 		// ModelAndView mv = new ModelAndView("Home");
 		ProductList pl = new ProductList();
 		pl.setActive(true);
-
+		MainGroup categ= new MainGroup();
+		SubGroup subcategory=new SubGroup();
 		ModelAndView mv = new ModelAndView("Page1");
 		mv.addObject("maingroup", MGDAO.findAll());
+		mv.addObject("category", categ);
+		mv.addObject("subcategory", subcategory);
 		mv.addObject("product", pl);
 		mv.addObject("title", "Product Master");
 
@@ -149,7 +158,21 @@ public class MainController {
 		}
 		return mv;
 	}
-
+	@RequestMapping(value="/category", method=RequestMethod.POST)
+	public String handleMainCategory(@ModelAttribute MainGroup category) {
+		
+		mgservice.addData(category); 
+	return "redirect:/mg"; 
+	}
+	@RequestMapping(value="/subcategory", method=RequestMethod.POST)
+	public String handlesubMainCategory(@ModelAttribute SubGroup subcategory) {
+		
+		  
+		sgservice.addSbgroup(subcategory);
+	return "redirect:/mg"; 
+	}
+	
+	
 	@RequestMapping(value = "/supplier")
 	public ModelAndView supplier(@RequestParam(name = "operation", required = false) String operation) {
 
@@ -230,16 +253,16 @@ public class MainController {
 
 	@RequestMapping(value = "/purchase")
 	public ModelAndView purchase(@RequestParam(name = "pur_id") String purid) {
-		Boolean trnv ;
+		Boolean trnv;
 		// ModelAndView mv = new ModelAndView("Home");
 		ModelAndView mv = new ModelAndView("Page1");
 		InwardRegister p1;
 		if (purid.equals("0")) {
 			p1 = new InwardRegister();
 			p1.setTransf(false);
-			trnv=false;
+			trnv = false;
 			System.out.println("Inside 0:- ");
-			//System.out.println("value of transfer "+trnv);
+			// System.out.println("value of transfer "+trnv);
 		} else {
 			p1 = iws.getPurId(purid);
 			trnv = p1.getTransf();
@@ -248,9 +271,9 @@ public class MainController {
 		Purchasedetail pd = new Purchasedetail();
 		mv.addObject("purid", purid);
 		mv.addObject("purchase", p1);
-		mv.addObject("purrege",pd);
+		mv.addObject("purrege", pd);
 		mv.addObject("title", "Purchase");
-		mv.addObject("transfdv",trnv);
+		mv.addObject("transfdv", trnv);
 		mv.addObject("userClickPurchase", true);
 
 		return mv;
@@ -258,8 +281,8 @@ public class MainController {
 
 	@RequestMapping(value = "/purchase", method = RequestMethod.POST)
 	@ResponseBody
-	public String handlepurchase(@Valid @ModelAttribute("purchase") InwardRegister niwr, BindingResult result,Model model) 
-	{
+	public String handlepurchase(@Valid @ModelAttribute("purchase") InwardRegister niwr, BindingResult result,
+			Model model) {
 		String s;
 
 		System.out.println("value of niw.getPid() is = " + niwr.getPid());
@@ -278,47 +301,47 @@ public class MainController {
 			s = niwr.getPid();
 			System.out.println("value of s inside update method:-" + s);
 		}
-System.out.println("{\"status\":\"success\"}");
-		//return "redirect:/purchase?pur_id=" + s;
-		return "{\"status\":\""+s+"\"}";
+		System.out.println("{\"status\":\"success\"}");
+		// return "redirect:/purchase?pur_id=" + s;
+		return "{\"status\":\"" + s + "\"}";
 	}
 
 	@RequestMapping(value = "/purrege", method = RequestMethod.POST)
 	@ResponseBody
-	public String handlepurchasereg(@Valid @ModelAttribute("purrege") Purchasedetail pudr, BindingResult result,Model model) 
-	{
-		System.out.println("I m inseide post function /purrege and value of pudr is "+pudr);
-		String s="";
-		 
-		System.out.println("value of niw.getPid() is = " + pudr); 
+	public String handlepurchasereg(@Valid @ModelAttribute("purrege") Purchasedetail pudr, BindingResult result,
+			Model model) {
+		System.out.println("I m inseide post function /purrege and value of pudr is " + pudr);
+		String s = "";
+
+		System.out.println("value of niw.getPid() is = " + pudr);
 		System.out.println("value of niw.getPid() is = " + pudr.getBarcode());
 		if (result.hasErrors()) {
 			System.out.println("Inside error");
-			System.out.println("value of result"+ result.toString());
+			System.out.println("value of result" + result.toString());
 			model.addAttribute("userClickPurchase", true);
 			model.addAttribute("title", "Purchase");
 			return "Page1";
 		}
-		
-		if (pudr.getBarcode().equals("")||pudr.getBarcode()==null) {
-			 pdss.addpd(pudr);
+
+		if (pudr.getBarcode().equals("") || pudr.getBarcode() == null) {
+			pdss.addpd(pudr);
 
 			System.out.println("value of s inside add method:-" + s);
-		} 
-		else {
+		} else {
 			pdss.uppPd(pudr);
-			 
-			  	s = pudr.getBarcode();
-			  	System.out.println("value of s inside update method:-" + s);
+
+			s = pudr.getBarcode();
+			System.out.println("value of s inside update method:-" + s);
 		}
-System.out.println("{\"status\":\"success\"}");
-		//return "redirect:/purchase?pur_id=" + s;
-		return "{\"status\":\""+s+"\"}";
+		System.out.println("{\"status\":\"success\"}");
+		// return "redirect:/purchase?pur_id=" + s;
+		return "{\"status\":\"" + s + "\"}";
 	}
+
 	@RequestMapping(value = "/pliupdate")
 	public ModelAndView updatepuddetail(@RequestParam(name = "bar") String bar) {
-		
-		Purchasedetail pdu =  pdss.getPdbyId(bar);
+
+		Purchasedetail pdu = pdss.getPdbyId(bar);
 		ModelAndView mv = new ModelAndView("Page1");
 
 		mv.addObject("title", "ProductListUpdate");
@@ -327,45 +350,57 @@ System.out.println("{\"status\":\"success\"}");
 		mv.addObject("purrege", pdu);
 		// System.out.println("value of main group "+sg1 );
 		return mv;
- 	}
-	
+	}
+
 	@RequestMapping(value = "/pliupdate", method = RequestMethod.POST)
-	@ResponseBody 
-	public String updatepuddetailP(@Valid @ModelAttribute("purrege") Purchasedetail pudr,@RequestParam(name = "bar", required = false) String bar, BindingResult result,Model model) {
-		
-		
-			Purchasedetail uppPd = pdss.uppPd(pudr);
-			 
-		String 	s = uppPd.getBarcode();
-			System.out.println("value of s inside update method:-" + s);
-		 return s;
- 	}
-	
-@RequestMapping(value="/delete", method= RequestMethod.POST)
-@ResponseBody
-public String deletebarrecord(@RequestParam(name = "bar") String bar)
-{
-	return "Record deleted with id:-"+pdss.deleteba(bar);
-	 
-}
-	
+	@ResponseBody
+	public String updatepuddetailP(@Valid @ModelAttribute("purrege") Purchasedetail pudr,
+			@RequestParam(name = "bar", required = false) String bar, BindingResult result, Model model) {
+
+		Purchasedetail uppPd = pdss.uppPd(pudr);
+
+		String s = uppPd.getBarcode();
+		System.out.println("value of s inside update method:-" + s);
+		return s;
+	}
+
+	@RequestMapping(value = "/delete", method = RequestMethod.POST)
+	@ResponseBody
+	public String deletebarrecord(@RequestParam(name = "bar") String bar) {
+		return "Record deleted with id:-" + pdss.deleteba(bar);
+
+	}
+
 	@RequestMapping(value = "/json/purinwl", method = RequestMethod.GET)
 	@ResponseBody
 	public List<Purchasedetail> purchdetail() {
 		return pdss.getAllPrd();
 
 	}
+
 	@RequestMapping(value = "/json/purinwl/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public Purchasedetail purchdetailAll(@PathVariable String id) {
 
 		return pdss.getPdbyId(id);
-	}@RequestMapping(value = "/json/purdetail/{prid}", method = RequestMethod.GET)
+	}
+
+	@RequestMapping(value = "/json/purdetail/{prid}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<Purchasedetail> purchdetailbyPrID(@PathVariable String prid) {
-
-		return pdss.getPdbyPrId(prid);
+		//System.out.println("value of prid"+prid);
+		List<String>prida = new ArrayList<>();
+		String[] as=prid.split(",");
+		 System.out.println("value of as"+as);
+		 for(int i=0;i<as.length;i++)
+		 {
+			 prida.add(as[i]);
+		 }
+		// System.out.println("value of prida"+prida);
+		return pdss.getPdbyPrId(prida);
+		 
 	}
+
 	@ModelAttribute("maingroup")
 	public List<MainGroup> getMaingroup() {
 		return MGDAO.findAll();
@@ -407,6 +442,7 @@ public String deletebarrecord(@RequestParam(name = "bar") String bar)
 
 		return pls.allproduct();
 	}
+
 	@RequestMapping(value = "/json/data/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public ProductList prodlistfid(@PathVariable String id) {
@@ -433,30 +469,23 @@ public String deletebarrecord(@RequestParam(name = "bar") String bar)
 
 		System.out.println("value of main group " + MGDAO.findAll());
 
-		 
-
 		return mv;
 	}
 
 	@RequestMapping("/tr")
 	public ModelAndView trialmap() {
- 	ModelAndView mv = new ModelAndView("Page1");
+		ModelAndView mv = new ModelAndView("Page1");
 
 		mv.addObject("title", "ProductList");
 
 		mv.addObject("userClickPurchaselist", true);
 
-		 
 		return mv;
 	}
 
 	@RequestMapping("/trial")
 	public ModelAndView trialmap1() {
 
-		System.out.println("Inside deepak");
-
-		System.out.println("value of product of some columns");
-	 
 		ModelAndView mv = new ModelAndView("Page1");
 
 		mv.addObject("title", "PurchaseDetail");
@@ -479,7 +508,7 @@ public String deletebarrecord(@RequestParam(name = "bar") String bar)
 	 * String purchasebill(@PathVariable String format) throws
 	 * FileNotFoundException, JRException { return iws.report(format); }
 	 */
-	
+
 	/*
 	 * @RequestMapping(value = "/product", method = RequestMethod.GET) public String
 	 * getAllProduct(ModelMap modelMap, HttpServletRequest request) {
@@ -490,7 +519,6 @@ public String deletebarrecord(@RequestParam(name = "bar") String bar)
 	 * }
 	 */
 
-	
 	/*
 	 * @RequestMapping(value = "/addProduct", method = RequestMethod.POST) public
 	 * String saveProduct(ModelMap modelMap, HttpServletRequest request) { Product
@@ -507,25 +535,30 @@ public String deletebarrecord(@RequestParam(name = "bar") String bar)
 	 * }
 	 */
 	@RequestMapping(value = "/purinvoic/{format}", method = RequestMethod.GET)
-	public ResponseEntity<InputStreamResource> getTermsConditions(@PathVariable String format) throws FileNotFoundException, JRException {
+	public ResponseEntity<InputStreamResource> getTermsConditions(@PathVariable String format)
+			throws FileNotFoundException, JRException {
 
-		
-		 
-        return  iws.report(format);
-        
-    }
-	
+		return iws.report(format);
+
+	}
+
 	@RequestMapping(value = "/myreporttrial/{prid}", method = RequestMethod.GET)
-	public void mytrialreportmethod(HttpServletResponse res,@PathVariable String prid) throws JRException, IOException
-	{
+	public void mytrialreportmethod(HttpServletResponse res, @PathVariable String prid)
+			throws JRException, IOException {
 		InwardRegister inwd = iws.getpurdetbyPr(prid);
-		 inwd.getSplid().getSname();
-		
+		inwd.getSplid().getSname();
+
 		res.setContentType("application/pdf");
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		
-		for(Purchasedetail ir:pdss.getPdbyPrId(prid)) {
-			Map<String, Object> item= new HashMap<String, Object>();
+		List<String>prida = new ArrayList<>();
+		String[] as=prid.split(",");
+		 System.out.println("value of as"+as);
+		 for(int i=0;i<as.length;i++)
+		 {
+			 prida.add(as[i]);
+		 }
+		for (Purchasedetail ir : pdss.getPdbyPrId(prida)) {
+			Map<String, Object> item = new HashMap<String, Object>();
 			/*
 			 * item.put("pid", ir.getPid()); item.put("intype", ir.getIntype());
 			 * item.put("pdate", ir.getPdate()); item.put("spldt", ir.getSpldt());
@@ -539,32 +572,34 @@ public String deletebarrecord(@RequestParam(name = "bar") String bar)
 			item.put("pcs", ir.getPcs());
 			item.put("qty", ir.getQty());
 			item.put("pname", ir.getPl().getPName());
-			int rowt= (int) (ir.getPcs()*ir.getQty()*ir.getMrp());
+			int rowt = (int) (ir.getPcs() * ir.getQty() * ir.getMrp());
 			item.put("rowt", rowt);
-			 result.add(item);
+			result.add(item);
 		}
-		
-		 Map<String, Object> param= new HashMap<String, Object>();
-		 param.put("sname",inwd.getSplid().getSname());
-		 
-		param.put("state",inwd.getSplid().getState());
-		 
-		param.put("pid",inwd.getPid());
-		 
-		param.put("sbill",inwd.getSplinv());
-		 
-		param.put("exdate",inwd.getSpldt());
-		param.put("GST",inwd.getSplid().getGstno());
-		param.put("address", inwd.getSplid().getAdd1()+","+inwd.getSplid().getAdd2()+","+inwd.getSplid().getCity()+","+inwd.getSplid().getDistrcit());
-		//result.add(item);
-		//List<InwardRegister> getallInty = iws.getallInty("purchase");
-		
-		//JRBeanCollectionDataSource ds = new JRBeanCollectionDataSource(iws.getallInty("purchase"));
+
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("sname", inwd.getSplid().getSname());
+
+		param.put("state", inwd.getSplid().getState());
+
+		param.put("pid", inwd.getPid());
+
+		param.put("sbill", inwd.getSplinv());
+
+		param.put("exdate", inwd.getSpldt());
+		param.put("GST", inwd.getSplid().getGstno());
+		param.put("address", inwd.getSplid().getAdd1() + "," + inwd.getSplid().getAdd2() + ","
+				+ inwd.getSplid().getCity() + "," + inwd.getSplid().getDistrcit());
+		// result.add(item);
+		// List<InwardRegister> getallInty = iws.getallInty("purchase");
+
+		// JRBeanCollectionDataSource ds = new
+		// JRBeanCollectionDataSource(iws.getallInty("purchase"));
 		JRBeanCollectionDataSource ds = new JRBeanCollectionDataSource(result);
-		InputStream ist=this.getClass().getResourceAsStream("/PurchaseInvoic.jrxml");
-		JasperReport jasperReport =JasperCompileManager.compileReport(ist);
-		JasperPrint jasperPrint =JasperFillManager.fillReport(jasperReport, param,ds);
-		  
+		InputStream ist = this.getClass().getResourceAsStream("/PurchaseInvoic.jrxml");
+		JasperReport jasperReport = JasperCompileManager.compileReport(ist);
+		JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, param, ds);
+
 		/*
 		 * HtmlExporter htmlexp = new
 		 * HtmlExporter(DefaultJasperReportsContext.getInstance());
@@ -576,36 +611,30 @@ public String deletebarrecord(@RequestParam(name = "bar") String bar)
 		jrPdfExporter.setExporterInput(new SimpleExporterInput(jasperPrint));
 		jrPdfExporter.setExporterOutput(new SimpleOutputStreamExporterOutput(res.getOutputStream()));
 		jrPdfExporter.exportReport();
-		 
+
 	}
-	
+
 	@RequestMapping(value = "/prbarcodeprint", method = RequestMethod.GET)
-	public void mybarcodeprint(HttpServletResponse res, @RequestParam Map<String, String> customQuery) throws JRException, IOException
-	{
-		System.out.println("customQuery = barcoded "+customQuery.containsKey("barcoded"));
+	public void mybarcodeprint(HttpServletResponse res, @RequestParam Map<String, String> customQuery)
+			throws JRException, IOException {
 		 
-		String barcodedarr=customQuery.get("barcoded");
-		String textearr=customQuery.get("textv");
-		String  radv=customQuery.get("rad");
-		System.out.println("value of barcodedarr"+barcodedarr);
-		System.out.println("value of textearr"+textearr);
-		System.out.println("value of radv"+radv);
-		String sbar[]=barcodedarr.split(",");
-		String stext[]=textearr.split(",");
-		
-		System.out.println("value of sbar"+sbar[0]);
-		System.out.println("value of stext"+stext[0]);
-		
-		System.out.println("value of sbar length"+sbar.length);
-		System.out.println("value of stext length"+stext.length);
-		
+
+		String barcodedarr = customQuery.get("barcoded");
+		String textearr = customQuery.get("textv");
+		String radv = customQuery.get("rad");
+		 
+		String sbar[] = barcodedarr.split(",");
+		String stext[] = textearr.split(",");
+
+		 
+
 		/*
 		 * InwardRegister inwd = iws.getpurdetbyPr("PR_1"); inwd.getSplid().getSname();
 		 */
-		
+
 		res.setContentType("application/pdf");
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		
+
 		/*
 		 * for(Purchasedetail ir:pdss.getPdbyPrId("PR_1")) { Map<String, Object> item=
 		 * new HashMap<String, Object>();
@@ -617,76 +646,186 @@ public String deletebarrecord(@RequestParam(name = "bar") String bar)
 		 * (ir.getPcs()*ir.getQty()*ir.getMrp()); item.put("rowt", rowt);
 		 * result.add(item); }
 		 */
-		
-		 for(int i=0;i<sbar.length;i++)
-		 {
-			 if(sbar[i].equals("1"))
-			 {
+
+		for (int i = 0; i < sbar.length; i++) {
+			if (sbar[i].equals("1")) {
+
+			} else {
 				 
-			 }else {
-				 System.out.println("value of sbar[i]"+sbar[i]);
-				   String barcode = pdss.getPdbyId(sbar[i]).getBarcode();
-				 
-				 for(int j=0;j<Integer.parseInt(stext[i]);j++)
-				 {
-					 System.out.println("Value of barcode"+barcode);
-					 Map<String, Object> item= new HashMap<String, Object>();
-					 item.put("barcode", pdss.getPdbyId(sbar[i]).getBarcode());
-					 item.put("ProductName", pdss.getPdbyId(sbar[i]).getPl().getPName());
-					 if(radv.equals("W"))
-					 {
-						 item.put("mrp", pdss.getPdbyId(sbar[i]).getMrp());
-					 }
-					 else {
-						 item.put("mrp", pdss.getPdbyId(sbar[i]).getBvalue());
-					 }
-					 result.add(item);
-				 }
-			 }
-			 
-		 }
-		
-		
-		
-			/*
-			 * Map<String, Object> param= new HashMap<String, Object>();
-			 * param.put("sname",inwd.getSplid().getSname());
-			 * 
-			 * param.put("state",inwd.getSplid().getState());
-			 * 
-			 * param.put("pid",inwd.getPid());
-			 * 
-			 * param.put("sbill",inwd.getSplinv());
-			 * 
-			 * param.put("exdate",inwd.getSpldt());
-			 * param.put("GST",inwd.getSplid().getGstno()); param.put("address",
-			 * inwd.getSplid().getAdd1()+","+inwd.getSplid().getAdd2()+","+inwd.getSplid().
-			 * getCity()+","+inwd.getSplid().getDistrcit());
-			 */
+				String barcode = pdss.getPdbyId(sbar[i]).getBarcode();
+
+				for (int j = 0; j < Integer.parseInt(stext[i]); j++) {
+					//System.out.println("Value of barcode" + barcode);
+					Map<String, Object> item = new HashMap<String, Object>();
+					item.put("barcode", pdss.getPdbyId(sbar[i]).getBarcode());
+					item.put("ProductName", pdss.getPdbyId(sbar[i]).getPl().getPName());
+					if (radv.equals("W")) {
+						item.put("mrp", pdss.getPdbyId(sbar[i]).getMrp());
+					} else {
+						item.put("mrp", pdss.getPdbyId(sbar[i]).getBvalue());
+					}
+					result.add(item);
+				}
+			}
+
+		}
+
+		/*
+		 * Map<String, Object> param= new HashMap<String, Object>();
+		 * param.put("sname",inwd.getSplid().getSname());
+		 * 
+		 * param.put("state",inwd.getSplid().getState());
+		 * 
+		 * param.put("pid",inwd.getPid());
+		 * 
+		 * param.put("sbill",inwd.getSplinv());
+		 * 
+		 * param.put("exdate",inwd.getSpldt());
+		 * param.put("GST",inwd.getSplid().getGstno()); param.put("address",
+		 * inwd.getSplid().getAdd1()+","+inwd.getSplid().getAdd2()+","+inwd.getSplid().
+		 * getCity()+","+inwd.getSplid().getDistrcit());
+		 */
 		JRBeanCollectionDataSource ds = new JRBeanCollectionDataSource(result);
-		InputStream ist=this.getClass().getResourceAsStream("/Barcode.jrxml");
-		JasperReport jasperReport =JasperCompileManager.compileReport(ist);
-		JasperPrint jasperPrint =JasperFillManager.fillReport(jasperReport, null,ds);
-		  
-		 
+		InputStream ist = this.getClass().getResourceAsStream("/Barcode.jrxml");
+		JasperReport jasperReport = JasperCompileManager.compileReport(ist);
+		JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, ds);
+
 		JRPdfExporter jrPdfExporter = new JRPdfExporter(DefaultJasperReportsContext.getInstance());
 		jrPdfExporter.setExporterInput(new SimpleExporterInput(jasperPrint));
 		jrPdfExporter.setExporterOutput(new SimpleOutputStreamExporterOutput(res.getOutputStream()));
 		jrPdfExporter.exportReport();
-		 
+
 	}
-	
-	
-	
-	@RequestMapping(value ="/barcodeprintp/{prid}" , method = RequestMethod.GET)
-	public ModelAndView barcodeprint(@PathVariable String prid) {
+	@RequestMapping(value = "/stocktransfer/{prid}", method = RequestMethod.GET)
+	public String StockTransfer(@PathVariable String prid) {
+ 		iws.inwardtransfer(iws.getPurId(prid));
+		return "redirect:/trial";
 		
-		 
+	}
+
+	@RequestMapping(value = "/barcodeprintp/{prid}", method = RequestMethod.GET)
+	public ModelAndView barcodeprint(@PathVariable String prid) {
+
 		ModelAndView mv = new ModelAndView("Page1");
 		mv.addObject("title", "BarcodePrint");
-		mv.addObject("prid",prid);
+		mv.addObject("prid", prid);
 		mv.addObject("userClickBarcodePrint", true);
 
 		return mv;
 	}
+	
+	@RequestMapping(value = "/stock", method = RequestMethod.GET)
+	public ModelAndView stockdetail( ) {
+
+		ModelAndView mv = new ModelAndView("Page1");
+		mv.addObject("title", "Stock Detail");
+		 
+		mv.addObject("userClicStock", true);
+
+		return mv;
+	}
+	@RequestMapping(value = "/json/st", method = RequestMethod.GET)
+	@ResponseBody
+	public List<Stock>  stockalldetail() {
+
+		  return stsr.findstockall();
+	}
+	@RequestMapping(value = "/stockOpening", method = RequestMethod.GET)
+	public ModelAndView stockopening(@RequestParam(name = "opn_id") String purid) {
+		 
+		
+		
+		StockDetail pdop= new StockDetail();
+		ModelAndView mv = new ModelAndView("Page1");
+		mv.addObject("title", "Opening Batch");
+		 mv.addObject("stockOpeningdet", pdop);
+		mv.addObject("userClicStockOpening", true);
+		mv.addObject("purid", purid);
+		return mv;
+	}
+
+	//
+	@RequestMapping(value = "/stockOpening", method = RequestMethod.POST)
+	@ResponseBody
+	public String handleopenstock(  Stock stk, BindingResult result,
+			Model model) {
+		String s="";
+System.out.println("value of stk"+stk);
+		
+		  System.out.println("value of niw.getPid() is = " + stk.getStockid());
+			/*
+			 * if (result.hasErrors()) {
+			 * 
+			 * model.addAttribute("userClickPurchase", true); model.addAttribute("title",
+			 * "Purchase"); return "Page1"; }
+			 */
+		  if (stk.getStockid().equals("")||stk.getStockid().isEmpty()) 
+		  {  Stock saveStock1 = stsr.saveStock(stk); 
+		  s=saveStock1.getStockid();
+		   
+		  
+		  System.out.println("value of s inside add method:-" + s); 
+		  } 
+		  else {
+		  stsr.uppstock(stk); 
+		  s = stk.getStockid();
+		  System.out.println("value of s inside update method:-" + s); }
+		 
+		System.out.println("{\"status\":\"success\"}");
+		 // return "redirect:/purchase?pur_id=" + s;
+		return "{\"status\":\"" + s + "\"}";
+	}
+
+
+	//
+	//
+	@RequestMapping(value = "/stockOpeningdet", method = RequestMethod.POST)
+	@ResponseBody
+	public String handleopenbat(@Valid @ModelAttribute("stockOpeningdet") StockDetail pudr, BindingResult result,
+			Model model) {
+		System.out.println("I m inseide post function /stockOpeningdet and value of pudr is " + pudr);
+		String s = "";
+
+		System.out.println("value of niw.getPid() is = " + pudr);
+		System.out.println("value of niw.getPid() is = " + pudr.getBarcode());
+		if (result.hasErrors()) {
+			System.out.println("Inside error");
+			System.out.println("value of result" + result.toString());
+			model.addAttribute("userClicStockOpening", true);
+			model.addAttribute("title", "Purchase");
+			return "Page1";
+		}
+
+		if (pudr.getBarcode().equals("") || pudr.getBarcode() == null) {
+			sdts.addstkdt(pudr);
+
+			System.out.println("value of s inside add method:-" + s);
+		} else {
+			sdts.uppstkdt(pudr);
+
+			s = pudr.getBarcode();
+			System.out.println("value of s inside update method:-" + s);
+		}
+		System.out.println("{\"status\":\"success\"}");
+		// return "redirect:/purchase?pur_id=" + s;
+		return "{\"status\":\"" + s + "\"}";
+	}
+
+	//
+	@RequestMapping(value = "/json/opdetail/{prid}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<StockDetail> stockdetailbyStkID(@PathVariable String prid) {
+		//System.out.println("value of prid"+prid);
+		List<String>prida = new ArrayList<>();
+		String[] as=prid.split(",");
+		 System.out.println("value of as"+as);
+		 for(int i=0;i<as.length;i++)
+		 {
+			 prida.add(as[i]);
+		 }
+		// System.out.println("value of prida"+prida);
+		return sdts.getstkdtbystkId(prida);
+		 
+	}
+	//
 }

@@ -115,7 +115,7 @@
                 <th>MRP</th>
                 <th>Supplier Discount</th>
                 <th>Tax on bill</th>
-                <th><input type="button" id="printbill" name="Print Bill" value="Print Bill" class="btn btn-primary" onclick="getprno('${purid}');" disabled="disabled"> <input type="button" name="Barcode" value="Barcode" id="barcodeprint" class="btn btn-lg btn-primary" onclick="printbarcode();" /></th>
+                <th><input type="button" id="printbill" name="Print Bill" value="Print Bill" class="btn btn-primary" onclick="getprno('${purid}');" disabled="disabled"> <input type="button" name="Barcode" value="Barcode" id="barcodeprint" class="btn btn-lg btn-primary" onclick="printbarcode('${purid}');" /></th>
                  
             </tr>
         </thead>

@@ -9,7 +9,10 @@ $(function() {
 	case 'Contact Us':
 		$('contact').addClass('active');
 		break;
-	default:
+	case 'PurchaseDetail':
+		$('purchasedetail').addClass('active');
+		break;
+ 	default:
 		$('home').addClass('active');
 		break;
 	}
@@ -91,7 +94,7 @@ $(function() {
 	//	var paravalue=window.parent.geturlpa();
 		 
 		var jsonUrl = window.contextRoot + '/json/purdetail/'+paravalue;
-		 alert('value of jsonUrl'+jsonUrl);
+		 //alert('value of jsonUrl'+jsonUrl);
 		var table=$table.DataTable({
 			initComplete:function(){
 				 $('#select-all').on('click', function(){
@@ -142,9 +145,9 @@ $(function() {
 				                //alert(value);
 				            }
 				        });
-					 alert('array value'+array);
+					/* alert('array value'+array);
 					 alert('array textarray'+textarray);
-					 alert('array selectedvalue'+selectedvalue);
+					 alert('array selectedvalue'+selectedvalue);*/
 				 
 					 location.replace(window.contextRoot+"/prbarcodeprint?barcoded="+array+"&textv="+textarray+"&rad="+selectedvalue);
 
@@ -207,6 +210,194 @@ $(function() {
 	}
 	
 	/*	Barcode Table*/
+	
+	/*	Stock Table*/
+	var $table = $('#stocktable');
+	if ($table.length) {
+	 
+		
+	//	var paravalue=window.parent.geturlpa();
+		 
+		var jsonUrl = window.contextRoot + '/json/st';
+		// alert('value of jsonUrl'+jsonUrl);
+		var table=$table.DataTable({
+			initComplete:function(){
+				 $('#select-allOp').on('click', function(){
+					 if ($('#select-allOp').is(":checked")) {
+						 
+		                    $('#btnClickstock').removeAttr('disabled');
+		                }
+		                else {
+		                	 $('#btnClickstock').attr('disabled', 'disabled');
+		                }
+				      // Get all rows with search applied
+				      var rows = table.rows({ 'search': 'applied' }).nodes();
+				      // Check/uncheck checkboxes for all rows in the table
+				      $('input[type="checkbox"]', rows).prop('checked', this.checked);
+				   });
+				
+				$('.chkop1').change(function () {
+					 
+	                if ($(this).is(":checked")) {
+	                    $('#btnClickstock').removeAttr('disabled');
+	                }
+	                else {
+	                    var isChecked = false;
+	                    $('.chkop1').each(function () {
+	                        if ($(this).is(":checked")) {
+	                            $('#btnClickstock').removeAttr('disabled');
+	                            isChecked = true;
+	                        }
+	                    });
+	                    if (!isChecked) {
+	                        $('#btnClickstock').attr('disabled', 'disabled');
+	                    }
+	                }
+	 
+	 
+	            });
+				 $('#btnClickstock').on('click', function(e){
+				      var textarray =[];
+				      var array = [];
+				    //  var selectedvalue=document.querySelector('input[name="GSTRATE"]:checked').value;
+					 $( "input[type=checkbox]" ).each(function(){
+				            if($(this).is(':checked'))
+				            {
+				               
+				                var vcheck= $(this).val();
+				                if(vcheck==1)
+				                	{
+				                	
+				                	}else{
+				                		array.push(vcheck);
+				                	}
+				                
+				               
+				                //alert(value);
+				            }
+				        });
+					 array=array+' ';
+					 /*alert('value of array.includes '+array.includes('1,'));
+					 if( array.includes('1,'))
+						 {
+						 alert('inside if condition');
+						 array=array.substring(2);
+						 };*/
+				//	 alert('array value'+array);
+					 
+				 
+					// location.replace(window.contextRoot+"/prbarcodeprint?barcoded="+array+"&textv="+textarray+"&rad="+selectedvalue);
+
+					 printbarcode(array);   
+				 
+				 
+				 });
+			},
+			columnDefs: [
+			    { orderable: false, targets: 0 }
+			  ],
+			  order: [[1, 'asc']], 
+			ajax : {
+				url : jsonUrl,
+				dataSrc : ''
+			},
+		 
+			columns : [ 
+				{
+					data:{stockid:'stockid',stocktype:'stocktype'},
+					mRender : function(data, type, row) {
+						if(data.stocktype=='current-opening')
+							{
+							return '<input type="checkbox" name ="barc" class="chkop1 "  value="'+data.stockid+'"/>';
+							}else{
+								var st=data.stocktype;
+								st=st.substring(0,st.length-9);
+								//alert('value of st'+st);
+								return '<input type="checkbox" name ="barc" class="chkop1 "  value="'+st+'"/>';
+							}
+						
+					}
+				},
+			 	{
+				data : 'stockid',
+				 
+			}, 
+			{
+				data : 'stocktype',
+				 
+			}, 	
+			{
+				data : 'stockon'
+			}, 
+			
+			{data : 'amount',
+				 
+
+			},  
+			{
+				data : 'nor',	
+				 
+			},
+			{
+				data:{stockid:'stockid',stocktype:'stocktype'},
+				mRender : function(data, type, row)
+				{
+					if(data.stocktype=='current-opening')
+					{
+						return'<input type="button" name="Barcodestock"  class="btn btn-primary " value="Barcode"  onclick="printbarcode('+"'"+data.stockid+"'"+');"/> &#160;<br>';
+				  
+					}else{
+						var st=data.stocktype;
+						st=st.substring(0,st.length-9);
+					//alert('value of st'+st);
+					return		'<input type="button" name="Barcodestock"  class="btn btn-primary " value="Barcode"  onclick="printbarcode('+"'"+st+"'"+');"/> &#160;<br>';
+				}
+			
+				}		
+	 	
+			},
+
+			{
+				
+				data:{stockid:'stockid',stocktype:'stocktype'},
+				mRender : function(data, type, row)
+				{
+					if(data.stocktype=='current-opening')
+					{
+						//return'<input type="button" name="Barcodestock"  class="btn btn-primary " value="Barcode"  onclick="printbarcode('+"'"+data.stockid+"'"+');"/> &#160;<br>';
+						return ' <input type="button" name="Printstock"  class="btn btn-primary " value="Print Bill"  onclick="getprno('+"'"+data.stockid+"'"+');"/> &#160;<br>';
+					}else{
+						var st=data.stocktype;
+						st=st.substring(0,st.length-9);
+					//alert('value of st'+st);
+				//	return		'<input type="button" name="Barcodestock"  class="btn btn-primary " value="Barcode"  onclick="printbarcode('+"'"+st+"'"+');"/> &#160;<br>';
+					return ' <input type="button" name="Printstock"  class="btn btn-primary " value="Print Bill"  onclick="getprno('+"'"+st+"'"+');"/> &#160;<br>';
+				}
+			
+				}		
+				
+				
+				 
+				 
+				 
+			} 	,
+
+			{
+				data : 'stockid',
+				mRender : function(data, type, row)
+				{
+					return '<a href="'
+					+ window.contextRoot
+					+ '/stockOpening?opn_id='+data+'" class="btn btn-primary btn-xs">Update/Add</a>'
+				}
+			} 	 		
+			]
+		});
+	}
+	
+	/*	Stock Table*/
+	
+	
 	/*Product Summary need to update*/
 	var $table = $('#purdata');
 	if ($table.length) {
@@ -236,18 +427,15 @@ $(function() {
 				data : 'spldt'
 			} ,
 			{
-				data:'transf'
+				data: {transf :"transf",pid :"pid"}
 					,
 					mRender: function(data,type, row)
 					{
-						if(data)
+						if(data.transf)
 							{
 
-							return		'<a href="'
-																							+ window.contextRoot
-																							+ '/update/'
-																							+ '/bar='+data+'" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open">Print Barcode</span></a> &#160;';
-							
+							return		'<input type="button"  name="s111" class="btn btn-primary btn-xs " value="Barcode p" onclick="printbarcode('+"'"+data.pid+"'"+');" />'
+							/*'<input type="button" name="s3"  class="btn btn-primary " value="UPDATE"  onclick="updateProductdetail('+data.barcode+');"/> &#160;<br>'*/
 							
 							}
 							else{
@@ -273,17 +461,17 @@ $(function() {
 								return		'<a href="'
 								+ window.contextRoot
 								+ '/purchase?'
-								+ 'pur_id='+data.pid+'" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open">Update</span></a> &#160;';
+								+ 'pur_id='+data.pid+'" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-eye-open">Update</span></a> &#160;';
 							}
 					}
 			}
 			,
 			{
-				data:'transf'
+				data: {transf :"transf",pid :"pid"}
 					,
 					mRender: function(data,type, row)
 					{
-						if(data)
+						if(data.transf)
 							{
 							return '<span style="color:blue">Included in stock</span>'; 
 							
@@ -293,8 +481,8 @@ $(function() {
 							else{
 								return		'<a href="'
 								+ window.contextRoot
-								+ '/update/'
-								+ '/bar='+data+'" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open">Transfer to Stock</span></a> &#160;';
+								+ '/stocktransfer/'
+								+data.pid+'" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open">Transfer to Stock</span></a> &#160;';
 								
 							}
 					}
@@ -808,11 +996,26 @@ function billdetailup()
 	    
 	    return false;
 		}
-	 if(bvaluedata=="0.0" || bvaluedata=="")
-	 {
-		 errmsg+='KIndly enter base value.  ;';
-		  return false;
-	 } 
+	if(document.getElementById("Rad")!=null){
+		var count =document.getElementById("Rad").checked;
+		
+		 if(count==true){
+			 var mrpdet=document.getElementById("mrp").value;
+			 if(mrpdet=="0.0" || mrpdet=="")
+			 {
+				 errmsg+='KIndly enter MRP value.  ;';
+				  return false;
+			 } 
+		 }
+	}
+	else{
+		 if(bvaluedata=="0.0" || bvaluedata=="")
+		 {
+			 errmsg+='KIndly enter base value.  ;';
+			  return false;
+		 } 
+	}
+	
 	 
 	 if(prdetail.ptype==1)
 		 {
@@ -831,6 +1034,40 @@ function billdetailup()
 		 }
 		  
 		 }
+	 ////
+	 if(document.getElementById("Rad")!=null){
+			var count =document.getElementById("Rad").checked;
+			
+			 if(count==true){
+				 var mrpdet=document.getElementById("mrp").value;
+				 ////
+
+				  if(gsts==0)
+					  {
+					  if(gstmin==0)
+					  {
+						  document.getElementById("bvalue").value =mrpdet;
+					  }else
+						  {
+						  document.getElementById("bvalue").value =Math.round(mrpdet/(1+(gstmin/100)));
+						  }
+					  
+					  }else{
+						  if(bvaluedata>=gsts)
+							  {
+							  document.getElementById("bvalue").value =Math.round(mrpdet/(1+(gstmax/100)));
+							  }
+						  else
+							  {
+							  document.getElementById("bvalue").value =Math.round(mrpdet/(1+(gstmin/100)));
+							  }
+						  }
+					
+				 
+				 /////
+			 }
+		}
+		else{
 	  if(gsts==0)
 		  {
 		  if(gstmin==0)
@@ -851,6 +1088,7 @@ function billdetailup()
 				  document.getElementById("mrp").value =Math.round(bvaluedata*(1+(gstmin/100)));
 				  }
 			  }
+		}
 return true;
 }
  
@@ -1090,14 +1328,261 @@ function basemrpcalc()
  {
 	 location.href ="/myreporttrial/"+prdatainv;
  }
- function printbarcode()
+ function printbarcode(pridad)
  {
+	// alert('value of pridad'+pridad);
+	 var priddd;
+	 if(pridad.includes(","))
+		 {
+		 priddd=pridad;
+		 }else{
+			 priddd=pridad.trim();
+		 }
+	 
 	 
 	 var callbackFunctionArray = new Array(HideModalWindow);
-		var url1= window.contextRoot +"/barcodeprintp/"+pridfa;
+		var url1= window.contextRoot +"/barcodeprintp/"+priddd; //pridfa
 		 
 		/*window.contextRoot +*/
 		 modalWin.ShowURL(url1,800,1400,'PRODUCT DETAILS',null,callbackFunctionArray);
  }
+ function readonlyRate(){
+	 var count=document.getElementById("checkRadio").checked;
+	 if(count==true){
+	   document.getElementById("mrp").readOnly = true;
+	    document.getElementById("bvalue").readOnly = false;
+	   }else{
+	     document.getElementById("bvalue").readOnly = true;
+	 	document.getElementById("mrp").readOnly = false;
+	 	}
+	 }
+ function openingsave()
+ {
+	 alert('inside openingsave');
+	 var prid=document.getElementById("var").value;
+	alert('value of prid'+prid);
+	 
+	 var x=savefun();
+	 alert('value of x'+x);
+	 if(x)
+		 { if(prid==0)
+			 {
+
+			 alert('inside prid if');
+			 onlinestockdetail();	
+			 savestockdetail();
+			 getopeningdetl();
+			 }
+		 else{
+			 savestockdetail();
+			 getopeningdetl();
+		 }
+		 
+		 }else{
+			 alert("Kindly check following items : "+errmsg) ;
+		 }
+ }
+ function onlinestockdetail()
+ {
+	 var url= window.contextRoot +'/stockOpening?opn_id=0';
+		//var postdata=$("#form1").serialize();
+		
+		method="POST";
+		$.ajax({
+			type:method,
+			async: false,
+			url : url,
+			dataType: "JSON",
+			data :{stockid: null,
+				stocktype: "current-opening",
+				amount: 0,
+				nor: 0,
+				stockon: "01-04-2021"},
+			success:function(data)
+			{
+				 
+			 alert('inside sucess function');
+				  $('#var').val(data.status)
+				  $('#inid').val(data.status);
+				  pridfa=data.status;
+			 
+		 
+				 // getall();
+			},
+		 error: function (jqXhr, textStatus, errorMessage) { 
+		    
+		     var err = JSON.parse(JSON.stringify(jqXhr.responseText));
+		     alert("error message"+err.message);
+		    }
+			
+			
+		});
+		
+		
+		//console.log(postdata);
+ }
+ function savestockdetail()
+ {
+	/* start update*/
+	alert('inside savestock');
  
-   
+		var url= window.contextRoot +'/stockOpeningdet';
+		var postdata=$("#form5").serialize();
+		alert('value of url'+url);
+alert("form2 url"+url);
+		  console.log("form5 postdata"+postdata);
+		alert('inside form5');
+		method="POST";
+		$.ajax({
+			type:method,
+			async: false,
+			url : url,
+			dataType: "JSON",
+			data :postdata,
+			success:function(data)
+			{
+				//console.log("Inside");
+			// alert("inside data"+data);
+			// alert("postdata of form2"+data.status);
+			 
+				 
+			},
+		 error: function (jqXhr, textStatus, errorMessage) { 
+		      
+		     var err = JSON.parse(jqXhr.responseText);
+		     alert('error inside in form5'+err.message);
+		    }
+			
+			
+		});
+		
+		
+ 
+		  /* document.getElementById('pcs').innerhtml="0";
+        	document.getElementById('qty').innerhtml="1.0";
+        	document.getElementById('bvalue').innerhtml="0.0";
+		*/
+	 /*end update*/
+ }
+ 
+ function getopeningdetl()
+ {$('#openingBatch').removeAttr('disabled');
+ 	var $table = $('#openingtab');
+ 	if ($table.length) {
+ 		var jsonUrl = window.contextRoot + '/json/opdetail/'+pridfa;
+ 		alert('value of url inside datatable'+jsonUrl);
+ 		$table.DataTable({
+ 			 destroy: true,
+ 			ajax : {url : jsonUrl,
+ 				dataSrc : ''
+ 				},
+ 				columns :[
+ 					{
+ 						data : 'stkid',
+ 						mRender : function(data, type, row) {
+ 							return data.stockid;
+ 						}
+ 						
+ 					},
+ 					{
+ 						data :'pl',
+ 						mRender : function(data, type, row) {
+ 							return data.prId;
+ 						}
+ 							},
+ 					{
+ 						data :'pl',
+ 						mRender : function(data, type, row) {
+ 							return data.pname;
+ 						}
+ 							},{
+ 								data :'barcode'
+								},
+ 							
+ 							{
+ 								data :'pcs'
+ 									},
+ 									{
+ 		 								data :'qty'
+ 		 									},
+ 									 
+ 											{
+ 												data :{qty:'qty',pcs:'pcs'},
+ 												mRender : function(data, type, row) {
+ 													return data.qty*data.pcs;
+ 												}
+ 													},
+ 													{
+ 														data :'bvalue'
+ 															},
+ 															{
+ 																data :'mrp'
+ 																	},
+ 																	{
+ 																		data :{qty:'qty',pcs:'pcs',mrp:'mrp'},
+ 						 												mRender : function(data, type, row) {
+ 						 													return data.qty*data.pcs*data.mrp;
+ 						 												}
+ 																			},
+ 																			  		{
+ 																						data:'barcode',
+ 																						mRender : function(data, type, row) {
+ 																							//alert("value of data.transf"+data.inid.transf);
+ 																							
+ 																									return		'<input type="button" name="s3"  class="btn btn-primary " value="UPDATE"  onclick="updateProductdetail('+data+');"/> &#160;<br>'+'<a href="'
+ 																									+ window.contextRoot
+ 																									+ '/delete'
+ 																									+ '?bar='+data+'" class="btn btn-primary delac"> DELETE </a> &#160;';
+ 																								 
+ 																					
+
+ 																						}
+ 																					}
+ 				],
+ 				initComplete : function() {
+ 					var api = this.api();
+ 					api.$('.delac')
+ 					.on(
+ 							'click',
+ 							function(e) {
+ 								e.preventDefault();
+ 								href = $(this).attr('href');
+ 							
+ 								var dMsg ='Are you sure?';
+ 							 
+ 							 var product=href.substring(href.indexOf('=')+1,href.length);
+ 							 
+ 								 
+ 								 bootbox.confirm({size : 'medium',
+ 									title : 'Product Delete',
+ 									message : dMsg,callback : function(result){
+ 										  if (result) {
+ 										 //   alert('value of bar value '+product);
+ 										    var activationUrl = window.contextRoot+href;
+ 									$.post(
+ 													activationUrl,
+ 													function(data) {
+ 														bootbox.alert({
+ 																	size : 'medium',
+ 																	title : 'Information',
+ 																	message : data
+ 																	
+ 																});
+
+ 													});
+ 										    }
+ 									}
+ 									
+ 								});
+ 										
+ 								getopeningdetl();		
+ 							//	
+ 								 
+ 							});
+ 				
+ 				}
+ 			});
+ 		
+ 	}
+ 		 
+ }
