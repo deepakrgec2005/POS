@@ -34,7 +34,7 @@
 
 						<div class="panel-body">
 							<sf:form class="row g-3" modelAttribute="product"
-								action="${contextRoot}/mg" method="POST"
+								action="${contextRoot}/POS/mg" method="POST"
 								enctype="multipart/form-data">
 								<div class="col-md-3">
 									<label class="form-label" for=mid>Select Category: </label>
@@ -312,7 +312,7 @@
 				</div>
 				<div class="modal-body">
 					<sf:form id="categoryForm" modelAttribute="category"
-						action="${contextRoot}/category" method="POST"
+						action="${contextRoot}/POS/category" method="POST"
 						class="form-horizontal">
 						<div class="form-group">
 							<label for="Mname" class="control-label col-md-4">Category
@@ -348,7 +348,7 @@
 				</div>
 				<div class="modal-body">
 					<sf:form id="subcategoryForm" modelAttribute="subcategory"
-						action="${contextRoot}/subcategory" method="POST"
+						action="${contextRoot}/POS/subcategory" method="POST"
 						class="form-horizontal">
 						<div class="form-group">
 							<label for="mg" id="mg" class="control-label col-md-4" />Main Group</label>

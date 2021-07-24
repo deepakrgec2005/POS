@@ -35,7 +35,7 @@
 						<sf:input type="text" path="spldt" id="spldt"
 							placeholder="Supplier Invoice Date" class="form-control" readonly="true" />
 						<sf:errors path="spldt" cssClass="help-block" element="em" />
-						<img src="./assets/images/cal.gif"
+						<img src="../assets/images/cal.gif"
 							onClick="javascript:NewCssCal('spldt','ddMMyyyy')" />
 						(dd-mm-yyyy)
 
