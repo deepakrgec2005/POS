@@ -398,20 +398,26 @@ public class MainController {
 		// System.out.println("value of main group "+sg1 );
 		return mv;
 	}
-	@RequestMapping(value = "/rsup")
+	@RequestMapping(value = "/rsup", method=RequestMethod.GET)
 	public ModelAndView updatersdetailg(@RequestParam(name = "bar") String bar,@RequestParam(name = "indt") String indt) {
+ System.out.println("value of bar"+bar);
+String bar1=bar;
 
+System.out.println("value of bar1"+bar1);
 		  BillDetail pdu = blldtdaosr.getproduct(bar, indt);
-		  String bar1=bar.substring(1, 9);
-		StockDetail getaone = sdts.getaone(bar1);
+		 
+		StockDetail getaone1 = sdts.getaone(bar1);
+		StockRegister getaone = srdaosr.findStkRrg(bar1);
 		ModelAndView mv = new ModelAndView("Page1");
 
 		mv.addObject("title", "Update Sale");
 
 		mv.addObject("userClickRsBill", true);
-		mv.addObject("rsaledupd", pdu);
+		mv.addObject("rsbilll", pdu);
 		mv.addObject("stkdt",getaone);
-		System.out.println("value of main pdu "+pdu );
+		mv.addObject("stkdt1",getaone1);
+		System.out.println("value of main pdu1 "+pdu);
+		 
 		return mv;
 	}
 
@@ -429,16 +435,21 @@ public class MainController {
 	
 	@RequestMapping(value = "/rsup", method = RequestMethod.POST)
 	@ResponseBody
-	public String updatersale(@Valid @ModelAttribute("rsaledupd") BillDetail bd,
+	public String updatersale(@Valid @ModelAttribute("rsbilll") BillDetail bd,
 			@RequestParam(name = "bar", required = false) String bar, BindingResult result, Model model) {
-
-		BillDetail getproduct = blldtdaosr.getproduct(bar, bd.getBill().getBillInvId());
-		
+System.out.println("value of bar"+bar);
+System.out.println("value of Model"+model);
+System.out.println("value of bd"+bd);
+		//BillDetail getproduct = blldtdaosr.getproduct(bd.getBarcode(), bd.getBill().getBillInvId(),bd.getBilldid(),bd.getPcs(),bd.getQty());
+ String updbillitem = blldtdaosr.updbillitem(bd.getBilldid(),bd.getPcs(),bd.getQty(),bd.getNet());
 		//Purchasedetail uppPd = pdss.uppPd(pudr);
-
-		String s = getproduct.getBarcode();
-		System.out.println("value of s inside update method:-" + s);
-		return s;
+System.out.println("value of updbillitem"+updbillitem);
+		//String s = updbillitem;
+String billInvId = bd.getBill().getBillInvId();
+ 
+System.out.println("value of bill Inv:-"+billInvId);
+	return "{\"status\":\"" + billInvId + "\"}";	//Sy  s;
+	
 	}
 //Stock Update//
 	@RequestMapping(value = "/stkdetupdate")
@@ -487,6 +498,26 @@ public class MainController {
 		return "Record deleted with id:-" + pdss.deleteba(bar);
 
 	}
+	@RequestMapping(value = "/delrsbill", method = RequestMethod.POST)
+	@ResponseBody
+	public String deleteRSbarrecord(@RequestParam(name = "bar") String bar,@RequestParam(name = "bild") String bild) {
+	
+		BillDetail bitem1 = blldtdaosr.getonebillitem(bild);
+		int pcs = bitem1.getPcs();
+		double qty = bitem1.getQty();
+		double tqty=qty*pcs;
+		String billInvId2 = bitem1.getBill().getBillInvId();
+	StockRegister sr = new StockRegister();
+	 sr.setStkbar(bar);
+	 sr.setTqty(tqty);
+	 srdaosr.addStock(sr);
+	 String s=	blldtdaosr.deletebill(bild);
+	 //String billInvId = pudr.getBill().getBillInvId();
+	 blds.updetail(billInvId2);
+		return "Record deleted with id:-" + s;
+
+	}
+	
 	@RequestMapping(value = "/openingdelete", method = RequestMethod.POST)
 	@ResponseBody
 	public String deleteopeninrecord(@RequestParam(name = "bar") String bar) {
@@ -1329,7 +1360,8 @@ public String handlebilldtsq(@Valid @ModelAttribute("billdt") BillDetail pudr, B
 		}
 		
 		String barcode1 = pudr.getBarcode();
-		System.out.println("value of barcode1 is "+barcode1);
+		pudr.setBarcode(barcode1.substring(1, 10));
+		System.out.println("value of barcode1 is "+barcode1.substring(1, 10));
 		System.out.println("value of Bill"+pudr.getBill().getBillInvId());
 		BillDetail addbilldetl;
 		BillDetail getproduct2 = blldtdaosr.getproduct(pudr.getBarcode(),pudr.getBill().getBillInvId());
@@ -1355,7 +1387,7 @@ public String handlebilldtsq(@Valid @ModelAttribute("billdt") BillDetail pudr, B
 		}
 		  //addbilldetl = blldtdaosr.addbilldetl(pudr);
 		 StockRegister sr = new StockRegister();
-		 sr.setStkbar(pudr.getBarcode().substring(1, 10));
+		 sr.setStkbar(pudr.getBarcode());
 		 sr.setTqty(pudr.getQty()*pudr.getPcs());
 		 srdaosr.removeStock(sr);
 		 String billInvId = pudr.getBill().getBillInvId();
@@ -1363,7 +1395,7 @@ public String handlebilldtsq(@Valid @ModelAttribute("billdt") BillDetail pudr, B
 	} else {
 		BillDetail updateBd = blldtdaosr.updateBd(pudr);
 		StockRegister sr = new StockRegister();
-		 sr.setStkbar(updateBd.getBarcode().substring(1, 10));
+		 sr.setStkbar(updateBd.getBarcode());
 		 sr.setTqty(pudr.getQty()*pudr.getPcs());
 		 srdaosr.removeStock(sr);
 		 String billInvId = pudr.getBill().getBillInvId();

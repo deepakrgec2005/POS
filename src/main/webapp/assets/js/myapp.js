@@ -1498,9 +1498,12 @@ function updateProductdetail(barcode)
 //location.reload();
 	}
 	function updateRsaledetail(barcode)
-{
+{ 
+	alert('value of barcode'+barcode);
+ var invid=document.getElementById("varbill").value;
+alert('value of invid'+invid);
 	var callbackFunctionArray = new Array(HideModalWindow );
-	var url1= window.contextRoot +"/POS/rsup?bar="+barcode;
+	var url1= window.contextRoot +"/POS/rsup?bar="+barcode+"&indt="+invid;
 	 
 	 modalWin.ShowURL(url1,800,1400,'UPDATE PCS/QTY',null,callbackFunctionArray);
 	// getall();
@@ -1555,6 +1558,34 @@ var postdata;
 	
 	 
 	}
+function rsbillupdfr()
+{
+	var url= window.contextRoot +'/POS/rsup';
+		 postdata=$("#formrsup").serialize();
+		method="POST";
+		alert('value of post data'+postdata);
+		$.ajax({
+			type:method,
+			async: false,
+			url : url,
+			dataType: "JSON",
+			data :postdata,
+			success:function(data)
+			{  
+				window.parent.location.reload();  
+				
+				 window.parent. HideModalWindow(); 
+		 	 
+			},
+		 error: function (jqXhr, textStatus, errorMessage) { 
+		      
+		     var err = JSON.parse(jqXhr.responseText);
+		    alert(err.message);
+		    }
+			
+			
+		});
+}
 function basemrpcalc()
 {
 	 var gstonsvalue = document.getElementById("pupgstons").value;
@@ -1573,6 +1604,43 @@ function basemrpcalc()
 		 console.log('value of mrpfinal '+mrpfinal);
 	 }
 	 document.getElementById('pupmrp').value=mrpfinal;
+}
+function pcsqty()
+{
+	 
+	
+	 var pcs=document.getElementById("rspcs").value;
+	var qty=document.getElementById("rsqty").value;
+	var baseprice=document.getElementById("rsprice").value; 
+	var discount=document.getElementById("discount").value;
+	var ppcs=document.getElementById("ppcs").value;
+	var pqty=document.getElementById("pqty").value;
+	var gst=document.getElementById("gst").value;
+	var balance1=document.getElementById("rsbalance").value;
+	var bal=balance1*1+(pqty*ppcs);
+	  if(bal<(pcs*qty))
+{
+	 alert('Stock entered is more than available');
+console.log('Stock entered is more than available');
+ document.getElementById("rsbt").disabled =true;
+ 
+}
+else{
+	document.getElementById("rsbt").disabled =false; 
+	 
+		document.getElementById("rsnet").value=(Math.round(baseprice*(1+(gst/100)))*pcs*qty)-discount;
+	 
+		document.getElementById("rsnet").value=(Math.round(baseprice*(1+(gst/100)))*pcs*qty)-discount;
+	
+}
+ 
+	 
+	
+	 
+}
+function pcsqty1()
+{
+pcsqty();
 }
  function mrpbasecalc()
  {
@@ -2026,8 +2094,10 @@ function billdsave()
 				//getrsaledt();
 			}
 			else{
+				pridfa=prid;
+				$('#billdetailbill').val(prid);
 				bidtinv(tidv);
-				//getrsaledt();
+				getrsaledt();
 			}
 	}
 	else{
@@ -2081,7 +2151,7 @@ function salebilldetail()
  {
 	 var url= window.contextRoot +'/POS/bill?bill_id=0';
 		var postdata=$("#invform1").serialize();
-		//alert('value of postdata'+postdata);
+		//alert('value of postdata in salebill'+postdata);
 		method="POST";
 		$.ajax({
 			type:method,
@@ -2097,7 +2167,7 @@ function salebilldetail()
 				  $('#billInvId').val(data.status);
 				$('#billdetailbill').val(data.status);
 				  pridfa=data.status;
-			 
+			 window.location.href='/POS/bill?bill_id='+data.status; 
 		 
 				 // getall();
 			},
@@ -2110,107 +2180,31 @@ function salebilldetail()
 			
 		});
 		
-		
+			
 		//console.log(postdata);
  }
 function bidtinv(barc)
 { 
-	//var barc=document.getElementById("barcode").value;
-//alert('value of barc inside bidtinv'+barc);
- //balancecheck(barc);
- /*var stck=document.getElementById("blck").value
- alert('value of stck'+stck);*/
+ //alert('value of barc inside bidtinv'+barc);
 var url =window.contextRoot+'/POS/json/stockrg/'+barc;
-//alert('value of url inside bidtinv'+url);
-	
-	/*method="GET";
-	$.ajax({
-		type:method,
-			async: false,
-			url : url,
-			dataType: "JSON",
-			sucess:function(data){
-				alert('value of data insdie bidtinv**** '+data.tqty);
-	 
-  
-   // alert('Your query count: ' + data.query.count);
- 			var pcs1=document.getElementById("pcs1").value;
-		    var qty1=document.getElementById("qty1").value;
-		    var balpcqty=pcs1*qty1;
-		    if(data.tqty<balpcqty)
-		    	{
-		    	alert('available Stock '+data.tqty+' Pc/No');
-// inlineMsg('pcs1','Nos should not exceed available stock',2);
-		    	// 
-		    	} 
-else{
-var url= window.contextRoot +'/POS/billdet';
-		var postdata=$("#billdtform").serialize();
-		//adaasd postdata=postdata;
-		//alert("form2 url"+url);
-		   //console.log("form2 postdata"+postdata);
-		alert('value of postdata'+postdata);
-		method="POST";
-		$.ajax({
-			type:method,
-			async: false,
-			url : url,
-			dataType: "JSON",
-			data :postdata,
-			success:function(data)
-			{
-			 alert('value of data'+data);
-			document.getElementById("Text4").value='';
-			 document.getElementById("barcode").value='';
-			 document.getElementById("pr1").value='';
-			 document.getElementById("qty1").value='';
-			 document.getElementById("bprice1").value='';
-			 document.getElementById("discount").value='';
-			 document.getElementById("net").value='';
-			 document.getElementById("pcs1").value='';
-			 document.getElementById("gross").value='';
-			 
-				 
-			},
-		 error: function (jqXhr, textStatus, errorMessage) { 
-		      alert('inside error message');
-		     var err = JSON.parse(jqXhr.responseText);
-		     alert(err.message);
-		    }
-			
-			
-		});
-		 
-		
-}
-			}
-	});*/
-	
-	//
-	 
-	//////
+ 
 	$.getJSON(url ,
 function(data) {
-	//alert('value of data'+data.tqty);
 	 
-  
-   // alert('Your query count: ' + data.query.count);
  			var pcs1=document.getElementById("pcs1").value;
 		    var qty1=document.getElementById("qty1").value;
 		    var balpcqty=pcs1*qty1;
 		    if(data.tqty<balpcqty)
 		    	{
 		    	alert('available Stock '+data.tqty+' Pc/No');
-// inlineMsg('pcs1','Nos should not exceed available stock',2);
+ 
 		    	// 
 		    	} 
 else{
 var url= window.contextRoot +'/POS/billdet';
 		var postdata=$("#billdtform").serialize();
-		//adaasd postdata=postdata;
-		//alert("form2 url"+url);
-		   //console.log("form2 postdata"+postdata);
-		//alert('value of postdata'+postdata);
+		 
+		 //alert('value of postdata inside tdata'+postdata);
 		method="POST";
 		$.ajax({
 			type:method,
@@ -2230,7 +2224,7 @@ var url= window.contextRoot +'/POS/billdet';
 			 document.getElementById("net").value='';
 			 document.getElementById("pcs1").value='';
 			 document.getElementById("gross").value='';
-			 getrsaledt();
+			  getrsaledt();
 				 
 			},
 		 error: function (jqXhr, textStatus, errorMessage) { 
@@ -2476,13 +2470,14 @@ function getrsaledt()
 																						 
 																					},
 																					{
-																						data:'barcode',
+																						data: {barcode:'barcode',billdid:'billdid'} ,
 																						mRender : function(data, type, row) {
-																							 
-																									return		'<input type="button" name="s11"  class="btn btn-primary " value="UPDATE"  onclick="updateProductdetail('+data.barcode+');"/> &#160;<br>'+'<a href="'
+																							// var ind=data.bill.billInvId;
+																						//console.log('value of ind'+ind)
+																									return		'<input type="button" name="s11"  class="btn btn-primary " value="UPDATE"  onclick="updateRsaledetail('+data.barcode+');"/> &#160;<br>'+'<a href="'
 																									+ window.contextRoot
-																									+ '/POS/delete'
-																									+ '?bar='+data.barcode+'" class="btn btn-primary delac"> DELETE </a> &#160;';
+																									+ '/POS/delrsbill'
+																									+ '?bar='+data.barcode+'&bild='+data.billdid+'" class="btn btn-primary delac"> DELETE </a> &#160;';
 																								}
 																					
 
@@ -2509,6 +2504,7 @@ function getrsaledt()
 										  if (result) {
 										 //   alert('value of bar value '+product);
 										    var activationUrl = window.contextRoot+href;
+						//alert('value of activationUrl'+activationUrl);
 									$.post(
 													activationUrl,
 													function(data) {
@@ -2522,7 +2518,8 @@ function getrsaledt()
 													});
 									//;
 										    }
-										 getrsaledt()
+						pridfa=document.getElementById("varbill").value;
+										 getrsaledt();
 									}
 									
 								});
