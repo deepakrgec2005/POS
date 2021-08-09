@@ -50,7 +50,7 @@
 								disabled="true" />
 								<sf:hidden id="indate" path="date" />
 							<sf:errors path="date" cssClass="help-block" element="em" />
-							 
+							 <input type="hidden" id="outamt" value="${outstanding}"/> 
 						</div>
 					</div>
 
@@ -126,7 +126,7 @@
 						</div>
 					<div class="form-row myformRow">
 						<div class="col-md-12">
-							Search by last 6 digit Barcode or Scan Your Barcode Here :<input type="text" align="center" id="Text4"  autofocus 	/>
+							Search by last 6 digit Barcode or Scan Your Barcode Here :<input type="text"  align="center" id="Text4"  autofocus 	/>
 						 <!-- onchange="scanbarcode();" -->
 							Text: <span id="ta-txt"></span><br /> ID: <span id="ta-id"></span><br />
 							<sf:hidden id="barc" path="barcode" />
@@ -157,7 +157,7 @@
 								<td class="thcl" ><input type="text" readonly="true" id="gross" /></td>
 								<td class="thcl" ><sf:input type="text" id="discount" path="discount" onblur="uppcs1();" /></td>
 								<td  class="thcl"><sf:input type="text" id="net" path="net"/><sf:hidden id="billdetailbill" path="bill"/></td>
-								<td class=" text-center"><input type="Button" value="Add" name="add" id="add" onclick="billdsave();"><input type="hidden" id="blck"/></td>
+								<td class=" text-center"><input type="Button" value="Add" name="add" id="add" onclick="billdsave();"  ${outstanding!=0.0?'disabled="disabled"' : ''}><input type="hidden" id="blck"/></td>
 						</table>
 						</div>
 						<div class="col-md-12">
@@ -188,7 +188,7 @@
             <td></td>
             <td></td>
             <td></td>
-            <td><input type="button" id="upbspay" name="Uppay" value="Pay" class="btn btn-primary" onclick="" disabled="disabled"/></td>
+            <td><input type="button" id="upbspay" name="Uppay" value="Pay" class="btn btn-primary" onclick="paymentdetailcap();" disabled="disabled"/></td>
             </tr>
         </thead>
          

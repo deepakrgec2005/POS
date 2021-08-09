@@ -40,6 +40,8 @@ import com.dk.rsale.Service.InwardRegisterSer;
 import com.dk.rsale.Service.MainGroupService;
 import com.dk.rsale.Service.NewBarcodeGenSer;
 import com.dk.rsale.Service.OrgDetailService;
+import com.dk.rsale.Service.PaymentdetailService;
+import com.dk.rsale.Service.PaymodeService;
 import com.dk.rsale.Service.ProductListServices;
 import com.dk.rsale.Service.PurchaseService;
 import com.dk.rsale.Service.PurchasedetailServ;
@@ -58,6 +60,8 @@ import com.dk.rsale.entity.Customers;
 import com.dk.rsale.entity.InwardRegister;
 import com.dk.rsale.entity.MainGroup;
 import com.dk.rsale.entity.OrgDetail;
+import com.dk.rsale.entity.Paymentdetail;
+import com.dk.rsale.entity.Paymode;
 import com.dk.rsale.entity.ProductList;
 import com.dk.rsale.entity.ProductObject;
 import com.dk.rsale.entity.Purchasedetail;
@@ -124,6 +128,10 @@ public class MainController {
 	BillDetailDAOService blldtdaosr;
 	@Autowired
 	StockRegisterDAOService srdaosr;
+	@Autowired
+	PaymodeService paymdsr;
+	@Autowired
+	PaymentdetailService pydtsr;
  	@RequestMapping(value = { "/", "/home" })
 	public ModelAndView HomeCont() {
 		//Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
@@ -597,6 +605,35 @@ System.out.println("value of bill Inv:-"+billInvId);
 		  return blldtdaosr.getbillitem(rsale);
 		 
 		 
+	}
+//*********//
+	//*******//
+	@RequestMapping(value = "/json/paybill/{invid}", method = RequestMethod.GET)
+	@ResponseBody
+	public  List<Map<String,Object>> rsalepaydt(@PathVariable String invid) {
+		 //pydtsr.getpaydtbill(invid);
+		  //return blldtdaosr.getbillitem(rsale);
+		 
+		List<Map<String,Object>> asd=new ArrayList<Map<String,Object>>();
+		 //ad=ad.concat("%");
+				   // sdts.getall();
+		System.out.println("value of brc"+invid);
+				// int i=1;
+				 for(Paymentdetail sd :pydtsr.getpaydtbill(invid))
+				 {
+					 Map<String,Object> mydata=new HashMap<String,Object>();
+					 mydata.put("transid", sd.getPydt());
+					 mydata.put("amtpaid", sd.getAmountpaid());
+					 mydata.put("paymode", paymdsr.getallpay(sd.getPymd()));
+					 mydata.put("paydate", sd.getPaydate());
+					 mydata.put("remarks", sd.getRemarks());
+					 mydata.put("netamt", sd.getBid().getPayamt());
+					  
+					 asd.add(mydata);
+					 
+				 }
+				 System.out.println("value of asd"+asd);
+				 return asd;
 	}
 //*********//
 	@ModelAttribute("maingroup")
@@ -1292,13 +1329,27 @@ public ModelAndView bill(@RequestParam(name = "bill_id") String billid)
 	//IndianStateandUT Ist= isus.getnewstate("1");
 	 UserMDetail u1 = umds.finduser("Us");
 	 Customers c1 = new Customers();
-	 Bill b1 = new Bill();
+	 Bill b1;
+	 double amt;
+	 if(billid.equals("0")) 
+	 {
+		 b1 = new Bill();
+		 amt=0.0;
+	 }
+	 else {
+		 //b1 = new Bill();
+		  b1 = blds.getBill(billid);
+		 amt=b1.getPayamt();
+		 
+	 }
+	 
 	 BillDetail bd= new BillDetail();
 	SimpleDateFormat sm = new SimpleDateFormat("MM-dd-yyyy");
  	b1.setDate(new Date());
 	ModelAndView mv = new ModelAndView("Page1");
 	mv.addObject("billid", billid);
 	mv.addObject("billd", b1);
+	mv.addObject("outstanding",amt);
 	mv.addObject("customer", c1);
 	mv.addObject("billdt", bd);
 	mv.addObject("State", isus.getallstate());
@@ -1313,6 +1364,16 @@ public ModelAndView bill(@RequestParam(name = "bill_id") String billid)
 public ModelAndView tbsta()
 {
 	//IndianStateandUT Ist= isus.getnewstate("1");
+	
+	  Paymode p1= new Paymode(); Paymode p2= new Paymode(); Paymode p3= new
+	  Paymode(); Paymode p4= new Paymode(); Paymode p5= new Paymode(); Paymode p6=
+	  new Paymode(); Paymode p7= new Paymode(); Paymode p8= new Paymode();
+	  p1.setPydis("Cash"); p2.setPydis("Cheque"); p3.setPydis("Demand Draft");
+	  p4.setPydis("Credit Card"); p5.setPydis("Debit Card");
+	  p6.setPydis("Credit Bill"); p7.setPydis("PayTM / UPI");
+	  p8.setPydis("Other Mode"); paymdsr.addpaymd(p1); paymdsr.addpaymd(p2);
+	  paymdsr.addpaymd(p3); paymdsr.addpaymd(p4); paymdsr.addpaymd(p5);
+	  paymdsr.addpaymd(p6); paymdsr.addpaymd(p7); paymdsr.addpaymd(p8);
 	 
 	 
 	ModelAndView mv = new ModelAndView("testtrial");
@@ -1420,4 +1481,59 @@ public StockRegister stockbalancechk(@PathVariable String id) {
 
 	return srdaosr.findStkRrg(id);
 }
+@RequestMapping(value="/paymentdts", method=RequestMethod.GET)
+public ModelAndView paydts(@RequestParam(name = "bill_id") String billid)
+{
+	//IndianStateandUT Ist= isus.getnewstate("1");
+	Bill bill = blds.getBill(billid);
+	Paymentdetail pm = new Paymentdetail();
+	pm.setBid(bill);
+	pm.setBillno(billid);
+	Date date = new Date();
+	System.out.println("value of paydate"+date );
+	pm.setPaydate(date);
+	//pm.setPymd();
+	pm.setUser(bill.getUser());
+	
+	ModelAndView mv = new ModelAndView("Page1");
+	mv.addObject("billpay", bill);
+	mv.addObject("paydetail", pm); 
+	mv.addObject("title", "Payment");
+	mv.addObject("userClickBillPaym", true);
+	return mv;
+}
+@RequestMapping(value = "/paymentdts", method = RequestMethod.POST)
+@ResponseBody
+public String handlebill(@Valid @ModelAttribute("paydetail") Paymentdetail bl,BindingResult result, Model model) {
+	String s;
+	System.out.println("value of Paymentdetails is = " + bl);
+	System.out.println("value of bl.getPymd() is = " + bl.getPymd());
+ 
+	  if (result.hasErrors()) {
+	  System.out.println("inside error");
+	  System.out.println("inside error"+result.getObjectName());
+	   
+	  model.addAttribute("userClickBillPaym", true); 
+	  model.addAttribute("title","Payment"); 
+	  return "Page1"; 
+	  } 
+	  if (bl.getPydt()==0) {
+Bill bid = bl.getBid();
+bid.setPayamt(bid.getPayamt()+bl.getAmountpaid());
+		  blds.uppBill(bid);
+		 
+			s = bl.getPydt()+"";
+			pydtsr.addPaydet(bl);
+	  } 
+	  else { pydtsr.savePaydet(bl);
+		   
+	  s = bl.getPydt()+"";
+	  System.out.println("value of s inside update method:-" + s); }
+	  System.out.println("{\"status\":\"success\"}"); 
+	  // return "redirect:/purchase?pur_id=" + s; 
+	  return "{\"status\":\"" + s + "\"}";
+	 
+ 
+}
+
 }

@@ -30,7 +30,7 @@ private String barcode;
 @JoinColumn(name="pl_fk",referencedColumnName = "PrId")
 private ProductList prname;
 private double bprice; 
- 
+  
 private int pcs;
 private double qty;
 private double discount;

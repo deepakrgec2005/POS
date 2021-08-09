@@ -21,7 +21,7 @@
 			<div class="row">
 
 				<sf:form class="form-horizontal" modelAttribute="supplier"
-					action="${contextRoot}/supplier" method="POST"
+					action="${contextRoot}/POS/supplier" method="POST"
 					enctype="multipart/form-data">
 					<div class="row">
 						<div class="col-lg-6">

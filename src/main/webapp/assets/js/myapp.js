@@ -2204,7 +2204,7 @@ else{
 var url= window.contextRoot +'/POS/billdet';
 		var postdata=$("#billdtform").serialize();
 		 
-		 //alert('value of postdata inside tdata'+postdata);
+		 alert('value of postdata inside tdata'+postdata);
 		method="POST";
 		$.ajax({
 			type:method,
@@ -2295,6 +2295,7 @@ function getrsaledt()
 	 
 	var $table = $('#salebp');
 	if ($table.length) {
+		var amtpaid= document.getElementById('outamt').value;
 		var jsonUrl = window.contextRoot + '/POS/json/rsldbill/'+pridfa;
 		//alert('value of jsonUrl'+jsonUrl);
 		$table.DataTable({
@@ -2474,10 +2475,16 @@ function getrsaledt()
 																						mRender : function(data, type, row) {
 																							// var ind=data.bill.billInvId;
 																						//console.log('value of ind'+ind)
+																						if(amtpaid=='0.0')
+																						{
 																									return		'<input type="button" name="s11"  class="btn btn-primary " value="UPDATE"  onclick="updateRsaledetail('+data.barcode+');"/> &#160;<br>'+'<a href="'
 																									+ window.contextRoot
 																									+ '/POS/delrsbill'
 																									+ '?bar='+data.barcode+'&bild='+data.billdid+'" class="btn btn-primary delac"> DELETE </a> &#160;';
+																								}
+																								else{
+																									return'';
+																								}
 																								}
 																					
 
@@ -2530,6 +2537,334 @@ function getrsaledt()
 							});
 					
 				}
+			});
+		
+	}
+}
+function paymentdetailcap()
+{
+	//alert('Inside paymentdetailcap');
+	var invid=document.getElementById("varbill").value;
+//alert('value of invid'+invid);
+//document.getElementById("Text4").readonly=true;
+ $('#Text4').attr('readonly', 'true'); 
+	var callbackFunctionArray = new Array(HideModalWindow );
+	var url1= window.contextRoot +"/POS/paymentdts?bill_id="+invid;
+	 
+	 modalWin.ShowURL(url1,800,1400,'Payment',null,callbackFunctionArray);
+}
+function cashcollected()
+{ //alert("inside cashcollected method");
+	var coll = document.getElementById("collectedamt").value;
+	var tobepaid = document.getElementById("ntpay").value;
+	var exchg = document.getElementById("exchg").value;
+	var invdt = document.getElementById("billno").value;
+	var rvalue= $("input:radio[name=pymd]:checked").val();
+	var atdp=document.getElementById("depositamt").value;
+	//alert('value of rvalue'+rvalue);
+	//document.getElementById("pymd1").value=rvalue;
+	var today = new Date();
+	var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+ 
+ 	var date1 = today.getDate()+'-'+months[(today.getMonth()+1)-1]+'-'+today.getFullYear();
+	document.getElementById('paydate').value =date1;
+	//var	collectedamt=0.0;
+	var mdifs=tobepaid-atdp;
+	if(mdifs==0)
+	{
+	 document.getElementById("print").hidden=false;
+			document.getElementById("pay").hidden=true;	
+	}
+	if(coll>=tobepaid-atdp)
+	{
+	var	collectedamt=coll-exchg;
+	document.getElementById('collectedamt').value=collectedamt;
+	var url= window.contextRoot +'/POS/paymentdts?bill_id='+invdt;
+		var postdata=$("#paydt").serialize();
+		alert('value of postdata in salebill'+postdata);
+		method="POST";
+		$.ajax({
+			type:method,
+			async: true,
+			url : url,
+			dataType: "JSON",
+			data :postdata,
+			success:function(data)
+			{
+				document.getElementById("depositamt").value=atdp+collectedamt;
+				 document.getElementById("print").hidden=false;
+			document.getElementById("pay").hidden=true;
+			 
+				/*  $('#varbill').val(data.status)
+				  $('#billInvId').val(data.status);
+				$('#billdetailbill').val(data.status);
+				  pridfa=data.status;
+			 window.location.href='/POS/bill?bill_id='+data.status; */
+		 
+				 // getall();
+			},
+		 error: function (jqXhr, textStatus, errorMessage) { 
+		    
+		     var err = JSON.parse(jqXhr.responseText);
+		     alert(err.message);
+		    }
+			
+			
+		});
+	
+	
+	
+	}
+	else{
+		var	collectedamt=coll-exchg;
+		var url= window.contextRoot +'/POS/paymentdts?bill_id='+invdt;
+		var postdata=$("#paydt").serialize();
+		//alert('value of postdata in salebill'+postdata);
+		method="POST";
+		$.ajax({
+			type:method,
+			async: true,
+			url : url,
+			dataType: "JSON",
+			data :postdata,
+			success:function(data)
+			{ var tdep=parseFloat(atdp)+parseFloat(collectedamt);
+			var tcamt=tobepaid-tdep;
+				document.getElementById("depositamt").value=tdep;
+				document.getElementById('collectedamt').value=tcamt;
+				$('#collectedamt').val(tcamt);
+			//	alert('value of depositamt'+tdep);
+				//alert('value of ATDPT'+atdp);
+				//alert('value of collectedamt'+collectedamt);
+				// document.getElementById("print").hidden=false;
+			//document.getElementById("pay").hidden=true;
+			//$('#collectedamt').val(data.status)
+			 
+				/*  $('#varbill').val(data.status)
+				  $('#billInvId').val(data.status);
+				$('#billdetailbill').val(data.status);
+				  pridfa=data.status;
+			 window.location.href='/POS/bill?bill_id='+data.status; */
+		 
+				 // getall();
+			},
+		 error: function (jqXhr, textStatus, errorMessage) { 
+		    
+		     var err = JSON.parse(jqXhr.responseText);
+		     alert(err.message);
+		    }
+			
+			
+		});
+	
+
+	}
+	getpydttb();
+}
+function clexch()
+{
+	var coll = document.getElementById("collectedamt").value;
+	var tobepaid = document.getElementById("ntpay").value;
+	var exchg = document.getElementById("exchg").value;
+	
+	if(coll>tobepaid)
+	{
+		var diff=coll-tobepaid;
+		
+	 	document.getElementById("exchg").value=diff;
+		$("#exchg").html(diff);
+	}
+	else{
+		document.getElementById("exchg").value=0;
+		$("#exchg").html(0);
+	}
+}
+
+function getpydttb()
+{
+	alert('Inside getpydttb');
+	var $table = $('#paydttb');
+	if ($table.length) {
+		var billno= document.getElementById('billno').value;
+		var atntpay=document.getElementById('ntpay').value;
+		var jsonUrl = window.contextRoot + '/POS/json/paybill/'+billno;
+		alert('value of jsonUrl'+jsonUrl);
+		$table.DataTable({
+			 
+			 "footerCallback":function ( row, data, start, end, display ){
+				var api = this.api(), data;
+ 
+            // converting to interger to find total
+            var intVal = function ( i ) {
+                return typeof i === 'string' ?
+                    i.replace(/[\$,]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+					};
+					 
+				var ramt=api.column( 1 )
+                .data()
+                .reduce( function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0 );
+				
+				
+			/*	var blpay=api.column( 1 )
+                .data()
+                .reduce( function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0 );
+			
+				
+				var grosstotal=api.column( 5 )
+                .data()
+                .reduce( function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0 );
+
+				 //console.log(api.column(5).data());
+				var distotal=api.column( 6 )
+                .data()
+                .reduce( function (a, b) {
+	 // data.qty*data.pcs*data.bprice
+                    return intVal(a) + (intVal(b.pcs)*intVal(b.qty)*intVal(b.bprice));
+                }, 0 );
+
+				
+				var nettotal=api.column( 7 )
+                .data()
+                .reduce( function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0 );
+	
+				
+				var gsttotal=api.column(8)
+                .data()
+                .reduce( function (a, b) {
+	 
+                    return intVal(a) + intVal(b);
+                }, 0 );
+
+				
+				var netptotal=api.column(9)
+                .data()
+                .reduce( function (a, b) {
+					 var x=intVal(b.gst);
+				var y=intVal(b.net);
+				if(x==0)
+				{
+					return intVal(a)+(x);
+				}
+				else{
+					return intVal(a)+((y*x)/100).toFixed(2);
+				}
+	
+                    
+                }, 0 );
+				 
+			var netptt=api.column(10)
+                .data()
+                .reduce( function (a, b) {
+	 			 var x=intVal(b.gst);
+				var y=intVal(b.net);
+				if(x==0)
+				{
+					return intVal(a)+(y);
+				}
+				else{
+					return intVal(a) + Math.round(y*(1+(x)/100));
+				}
+	
+                    
+                }, 0 );
+	
+			$(api.column(3).header()).html(pcstotal);
+			$(api.column(4).header()).html(qtytotal);
+			$(api.column(5).header()).html(grosstotal);
+			$(api.column(6).header()).html(distotal);
+			$(api.column(7).header()).html(nettotal);
+			$(api.column(8).header()).html(gsttotal);*/
+			$(api.column(4).header()).html(atntpay-ramt);
+			$(api.column(2).header()).html(ramt);
+			},
+			
+			 destroy: true,
+			ajax : {
+				 
+				url : jsonUrl,
+				dataSrc : ''
+				},
+				columns :[
+					 
+					{
+						data :'transid'
+							},
+							
+							{
+							data:'amtpaid'
+							 
+							},
+							{
+								data :'paymode',
+								mRender : function(data, type, row) {
+													return data.pydis;
+												}
+									},
+									{
+										data :'paydate'
+											},
+													{
+														data :'remarks'
+															} 
+																					
+				]
+				/*,
+				initComplete : function() {
+					var api = this.api();
+					api.$('.delac')
+					.on(
+							'click',
+							function(e) {
+								e.preventDefault();
+								href = $(this).attr('href');
+							
+								var dMsg ='Are you sure?';
+							 
+							 var product=href.substring(href.indexOf('=')+1,href.length);
+							 
+								 
+								 bootbox.confirm({size : 'medium',
+									title : 'Product Delete',
+									message : dMsg,callback : function(result){
+										  if (result) {
+										 //   alert('value of bar value '+product);
+										    var activationUrl = window.contextRoot+href;
+						//alert('value of activationUrl'+activationUrl);
+									$.post(
+													activationUrl,
+													function(data) {
+														bootbox.alert({
+																	size : 'medium',
+																	title : 'Information',
+																	message : data
+																	
+																});
+
+													});
+									//;
+										    }
+						pridfa=document.getElementById("varbill").value;
+										 getrsaledt();
+									}
+									
+								});
+										
+										
+							//	
+								 
+							});
+					
+				}*/
 			});
 		
 	}

@@ -1,6 +1,7 @@
 package com.dk.rsale.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,5 +60,9 @@ public class BillDaoService {
 	public List<Bill> getallbill() {
 		 
 		return billdao.findAll();
+	}
+	public Bill getBill(String id)
+	{
+		return billdao.findById(id).orElse(null);
 	}
 }

@@ -152,6 +152,9 @@ $("#Text4").autocomplete({
          <c:when test="${userClickBarcodePrint==true}">
               
        </c:when>
+         <c:when test="${userClickBillPaym==true}">
+              
+       </c:when>
         
        <c:otherwise>
           <%@ include file="./shared/navbar1.jsp"%>   
@@ -203,6 +206,11 @@ $("#Text4").autocomplete({
 			  
 				<%@include file="BarcodePrint.jsp"%>
 		</c:if>
+	 
+				<c:if test="${userClickBillPaym==true}">
+			  
+				<%@include file="Payment.jsp"%>
+		</c:if>
 		 <c:if test="${userClicStock==true}">
 			  
 				<%@include file="stock.jsp"%>
@@ -236,7 +244,9 @@ $("#Text4").autocomplete({
         <c:when test="${userClickBarcodePrint==true}">
                
        </c:when>
-        
+          <c:when test="${userClickBillPaym==true}">
+               
+       </c:when>
        <c:otherwise>
           <%@include file="./shared/footer1.jsp"%>
        </c:otherwise>

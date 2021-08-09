@@ -19,7 +19,7 @@ public interface BillDetailDAO extends JpaRepository<BillDetail, Integer> {
 	Double getqtytotal(String s);
 	@Query("from BillDetail where bill.BillInvId=:s")
 	BillDetail findbyBillID(String s);
-	@Query("SELECT SUM(net) FROM BillDetail  where bill.BillInvId=:s")
+	@Query("SELECT SUM(net*(1+(gst/100))) FROM BillDetail  where bill.BillInvId=:s")
 	Double sumofoutstanding(String s);
 	@Query("from BillDetail where bill.BillInvId=:billdid and barcode=:barcode")
 	BillDetail updetsaw(String barcode, String billdid);
