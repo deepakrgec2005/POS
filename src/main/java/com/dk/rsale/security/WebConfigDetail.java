@@ -62,7 +62,7 @@ public class WebConfigDetail extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web)throws Exception
 	{
-		web.ignoring().antMatchers("/POS/tr").antMatchers("/POS/pliupdate").antMatchers("/POS/barcodeprintp/**").antMatchers("/POS/prbarcodeprint").antMatchers("/POS/stockOpening").antMatchers("/POS/stockOpeningdet").antMatchers("/POS/logidet").antMatchers("/POS/delete").antMatchers("/POS/userup").antMatchers("/POS/changepass").antMatchers("/POS/stkdetupdate").antMatchers("/POS/openingdelete").antMatchers("/POS/json/barcode").antMatchers("/POS/billdet").antMatchers("/POS/json/stockrg/**").antMatchers("/POS/enddata").antMatchers("/POS/Rsaledt").antMatchers("/POS/rsup").antMatchers("/POS/delrsbill").antMatchers("/POS/paymentdts").antMatchers("/POS/json/paybill/**");
+		web.ignoring().antMatchers("/POS/tr").antMatchers("/POS/pliupdate").antMatchers("/POS/barcodeprintp/**").antMatchers("/POS/prbarcodeprint").antMatchers("/POS/stockOpening").antMatchers("/POS/stockOpeningdet").antMatchers("/POS/logidet").antMatchers("/POS/delete").antMatchers("/POS/userup").antMatchers("/POS/changepass").antMatchers("/POS/stkdetupdate").antMatchers("/POS/openingdelete").antMatchers("/POS/json/barcode").antMatchers("/POS/billdet").antMatchers("/POS/json/stockrg/**").antMatchers("/POS/enddata").antMatchers("/POS/Rsaledt").antMatchers("/POS/rsup").antMatchers("/POS/delrsbill").antMatchers("/POS/paymentdts").antMatchers("/POS/json/paybill/**").antMatchers("/POS/myrsalebillinv/**");
 	}
 
  

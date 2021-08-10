@@ -277,7 +277,11 @@ var date1 = today.getDate()+'-'+months[(today.getMonth()+1)-1]+'-'+today.getFull
 					 
 			},
 			{
-				data:'outstanding'
+				data:{outstanding:'outstanding',payamt:'payamt'},
+				mRender: function(data,type, row)
+					{
+						return data.outstanding-data.payamt
+						}
 			}
 			,
 			{
@@ -288,11 +292,11 @@ var date1 = today.getDate()+'-'+months[(today.getMonth()+1)-1]+'-'+today.getFull
 						} 
 			} ,
 			{
-				data:{payment:'payamt',billInvId:'billInvId'}
+				data:{payamt:'payamt',billInvId:'billInvId',outstanding:'outstanding'}
 					,
 					mRender: function(data,type, row)
 					{
-						 if(data.payment!=0)
+						 if(data.payamt!=data.outstanding)
 					{
 						return'<a href="'
 							+ window.contextRoot
@@ -308,26 +312,26 @@ var date1 = today.getDate()+'-'+months[(today.getMonth()+1)-1]+'-'+today.getFull
 					}
 			},
 			{
-				data:'outstanding'
+				data:{payamt:'payamt',billInvId:'billInvId',outstanding:'outstanding'}
 					,
 					mRender: function(data,type, row)
 					{
-						if(data!=0)
+						if(data.payamt!=data.outstanding)
 							{
 
 							
 							return		'<a href="'
 								+ window.contextRoot
 								+ '/POS/rsaledell/'
-								+ '/bar='+data+'" class="btn btn-danger"><span class="glyphicon glyphicon-eye-open">Delete</span></a> &#160;';
+								+ '/bar='+data.billInvId+'" class="btn btn-danger"><span class="glyphicon glyphicon-eye-open">Delete</span></a> &#160;';
 							
 							}
 							else{
 								; 
 								return		'<a href="'
 								+ window.contextRoot
-								+ '/POS/Rsaleprint/'
-								+ '/bar='+data+'" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open">Print Bill</span></a> &#160;';
+								+ '/POS/myrsalebillinv/'
+								 +data.billInvId+'" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open">Print Bill</span></a> &#160;';
 							}
 					}
 			}
@@ -2629,6 +2633,7 @@ function cashcollected()
 			data :postdata,
 			success:function(data)
 			{ var tdep=parseFloat(atdp)+parseFloat(collectedamt);
+			alert('value of tdep'+tdep);
 			var tcamt=tobepaid-tdep;
 				document.getElementById("depositamt").value=tdep;
 				document.getElementById('collectedamt').value=tcamt;
